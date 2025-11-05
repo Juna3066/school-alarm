@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -27,6 +27,7 @@
             --danger: #ff4757;
             --warning: #ff9f43;
             --info: #1e90ff;
+            --edit: #7d3c98;
         }
         
         .dark-theme {
@@ -38,6 +39,7 @@
             --card-bg: #16213e;
             --border: #2d4059;
             --shadow: rgba(0, 0, 0, 0.3);
+            --edit: #9b59b6;
         }
         
         .school-theme {
@@ -49,6 +51,7 @@
             --card-bg: #ffffff;
             --border: #bee3f8;
             --shadow: rgba(49, 130, 206, 0.1);
+            --edit: #6c3483;
         }
         
         body {
@@ -175,6 +178,7 @@
         }
         
         .current-time-section {
+            flex-grow: 1;
             text-align: center;
         }
         
@@ -307,9 +311,25 @@
             background: #1a7fd8;
         }
         
+        .edit-btn {
+            background: var(--edit);
+        }
+        
+        .edit-btn:hover {
+            background: #6c3483;
+        }
+        
         .alarms-list {
-            max-height: 400px;
+            flex-grow: 2;
+            max-height: 580px;
             overflow-y: auto;
+        }
+        
+        .alarms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
         }
         
         .alarm-item {
@@ -319,7 +339,6 @@
             padding: 15px;
             background: var(--card-bg);
             border-radius: 10px;
-            margin-bottom: 12px;
             border-left: 4px solid var(--primary);
             box-shadow: 0 2px 5px var(--shadow);
             transition: transform 0.2s;
@@ -433,6 +452,75 @@
             margin-top: 20px;
         }
         
+        /* 弹出框样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 10px 25px var(--shadow);
+            width: 90%;
+            max-width: 500px;
+            padding: 25px;
+            transform: translateY(-20px);
+            transition: transform 0.3s;
+        }
+        
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .modal-title {
+            font-size: 22px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text);
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        
+        .close-modal:hover {
+            opacity: 1;
+            transform: none;
+            background: none;
+        }
+        
         /* 滚动条样式 */
         ::-webkit-scrollbar {
             width: 8px;
@@ -498,6 +586,19 @@
             .nav-tabs {
                 flex-direction: column;
             }
+            
+            .alarms-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .alarm-actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -550,38 +651,14 @@
                     </div>
                 </div>
                 
-                <div class="section add-alarm-section fade-in">
-                    <h2 class="section-title"><i class="fas fa-plus-circle"></i> 添加新闹铃</h2>
-                    <form id="alarmForm">
-                        <div class="form-group">
-                            <label for="alarmTime"><i class="fas fa-clock"></i> 闹铃时间</label>
-                            <input type="time" id="alarmTime" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="alarmLabel"><i class="fas fa-tag"></i> 闹铃名称</label>
-                            <input type="text" id="alarmLabel" placeholder="例如：第一节上课铃" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="alarmType"><i class="fas fa-list"></i> 闹铃类型</label>
-                            <select id="alarmType">
-                                <option value="class">上课铃</option>
-                                <option value="break">下课铃</option>
-                                <option value="activity">活动铃</option>
-                                <option value="exam">考试铃</option>
-                            </select>
-                        </div>
-                        
-                        <button type="submit">
+                <div class="section alarms-list fade-in">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 class="section-title"><i class="fas fa-list"></i> 闹铃列表 (按时间排序)</h2>
+                        <button onclick="showAddAlarmModal()">
                             <i class="fas fa-plus"></i> 添加闹铃
                         </button>
-                    </form>
-                </div>
-                
-                <div class="section alarms-list fade-in">
-                    <h2 class="section-title"><i class="fas fa-list"></i> 闹铃列表 (按时间排序)</h2>
-                    <div id="alarmsContainer">
+                    </div>
+                    <div class="alarms-grid" id="alarmsContainer">
                         <!-- 闹铃将在这里动态添加 -->
                     </div>
                 </div>
@@ -633,6 +710,77 @@
         </footer>
     </div>
 
+    <!-- 添加闹铃弹出框 -->
+    <div class="modal-overlay" id="addAlarmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-plus-circle"></i> 添加新闹铃</h2>
+                <button class="close-modal" onclick="hideAddAlarmModal()">&times;</button>
+            </div>
+            <form id="alarmForm">
+                <div class="form-group">
+                    <label for="modalAlarmTime"><i class="fas fa-clock"></i> 闹铃时间</label>
+                    <input type="time" id="modalAlarmTime" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="modalAlarmLabel"><i class="fas fa-tag"></i> 闹铃名称</label>
+                    <input type="text" id="modalAlarmLabel" placeholder="例如：第一节上课铃" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="modalAlarmType"><i class="fas fa-list"></i> 闹铃类型</label>
+                    <select id="modalAlarmType">
+                        <option value="class">上课铃</option>
+                        <option value="break">下课铃</option>
+                        <option value="activity">活动铃</option>
+                        <option value="exam">考试铃</option>
+                    </select>
+                </div>
+                
+                <button type="submit">
+                    <i class="fas fa-plus"></i> 添加闹铃
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 编辑闹铃弹出框 -->
+    <div class="modal-overlay" id="editAlarmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-edit"></i> 编辑闹铃</h2>
+                <button class="close-modal" onclick="hideEditAlarmModal()">&times;</button>
+            </div>
+            <form id="editAlarmForm">
+                <input type="hidden" id="editAlarmIndex">
+                <div class="form-group">
+                    <label for="editAlarmTime"><i class="fas fa-clock"></i> 闹铃时间</label>
+                    <input type="time" id="editAlarmTime" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editAlarmLabel"><i class="fas fa-tag"></i> 闹铃名称</label>
+                    <input type="text" id="editAlarmLabel" placeholder="例如：第一节上课铃" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editAlarmType"><i class="fas fa-list"></i> 闹铃类型</label>
+                    <select id="editAlarmType">
+                        <option value="class">上课铃</option>
+                        <option value="break">下课铃</option>
+                        <option value="activity">活动铃</option>
+                        <option value="exam">考试铃</option>
+                    </select>
+                </div>
+                
+                <button type="submit">
+                    <i class="fas fa-save"></i> 保存修改
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script>
         // 存储自定义铃声
         let customRingtones = {};
@@ -660,6 +808,36 @@
             
             document.getElementById(tabId).classList.add('active');
             document.querySelector(`.nav-tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+        }
+        
+        // 显示添加闹铃弹出框
+        function showAddAlarmModal() {
+            document.getElementById('addAlarmModal').classList.add('active');
+        }
+        
+        // 隐藏添加闹铃弹出框
+        function hideAddAlarmModal() {
+            document.getElementById('addAlarmModal').classList.remove('active');
+        }
+        
+        // 显示编辑闹铃弹出框
+        function showEditAlarmModal(index) {
+            // 获取当前闹铃数据
+            const alarm = alarms[index];
+            
+            // 填充表单
+            document.getElementById('editAlarmIndex').value = index;
+            document.getElementById('editAlarmTime').value = alarm.time;
+            document.getElementById('editAlarmLabel').value = alarm.label;
+            document.getElementById('editAlarmType').value = alarm.type;
+            
+            // 显示弹出框
+            document.getElementById('editAlarmModal').classList.add('active');
+        }
+        
+        // 隐藏编辑闹铃弹出框
+        function hideEditAlarmModal() {
+            document.getElementById('editAlarmModal').classList.remove('active');
         }
         
         // 更新当前时间
@@ -766,7 +944,7 @@
             container.innerHTML = '';
             
             if (alarms.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text); opacity: 0.7;"><i class="fas fa-bell-slash"></i> 暂无闹铃设置</p>';
+                container.innerHTML = '<p style="text-align: center; color: var(--text); opacity: 0.7; grid-column: 1 / -1;"><i class="fas fa-bell-slash"></i> 暂无闹铃设置</p>';
                 return;
             }
             
@@ -815,6 +993,9 @@
                     <div class="alarm-actions">
                         <button class="play-btn" onclick="playAlarmRingtone('${alarm.type}')">
                             <i class="fas fa-play"></i>
+                        </button>
+                        <button class="edit-btn" onclick="showEditAlarmModal(${index})">
+                            <i class="fas fa-edit"></i>
                         </button>
                         <button class="delete-btn" onclick="deleteAlarm(${index})">
                             <i class="fas fa-trash"></i>
@@ -876,9 +1057,9 @@
         function addAlarm(event) {
             event.preventDefault();
             
-            const time = document.getElementById('alarmTime').value;
-            const label = document.getElementById('alarmLabel').value;
-            const type = document.getElementById('alarmType').value;
+            const time = document.getElementById('modalAlarmTime').value;
+            const label = document.getElementById('modalAlarmLabel').value;
+            const type = document.getElementById('modalAlarmType').value;
             
             if (!time || !label) return;
             
@@ -895,9 +1076,39 @@
             renderAlarms();
             
             document.getElementById('alarmForm').reset();
+            hideAddAlarmModal();
             
             // 显示添加成功提示
             showNotification('闹铃添加成功！', 'success');
+        }
+        
+        // 编辑闹铃
+        function editAlarm(event) {
+            event.preventDefault();
+            
+            const index = document.getElementById('editAlarmIndex').value;
+            const time = document.getElementById('editAlarmTime').value;
+            const label = document.getElementById('editAlarmLabel').value;
+            const type = document.getElementById('editAlarmType').value;
+            
+            if (!time || !label) return;
+            
+            // 更新闹铃数据
+            alarms[index] = {
+                time,
+                label,
+                type
+            };
+            
+            // 重新排序
+            sortAlarms();
+            saveAlarms();
+            renderAlarms();
+            
+            hideEditAlarmModal();
+            
+            // 显示编辑成功提示
+            showNotification('闹铃修改成功！', 'success');
         }
         
         // 显示通知
@@ -937,12 +1148,14 @@
         
         // 删除闹铃
         function deleteAlarm(index) {
-            alarms.splice(index, 1);
-            saveAlarms();
-            renderAlarms();
-            
-            // 显示删除成功提示
-            showNotification('闹铃已删除', 'success');
+            if (confirm('确定要删除这个闹铃吗？')) {
+                alarms.splice(index, 1);
+                saveAlarms();
+                renderAlarms();
+                
+                // 显示删除成功提示
+                showNotification('闹铃已删除', 'success');
+            }
         }
         
         // 删除铃声
@@ -1262,6 +1475,20 @@
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('alarmForm').addEventListener('submit', addAlarm);
+            document.getElementById('editAlarmForm').addEventListener('submit', editAlarm);
+            
+            // 点击弹出框外部关闭弹出框
+            document.getElementById('addAlarmModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    hideAddAlarmModal();
+                }
+            });
+            
+            document.getElementById('editAlarmModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    hideEditAlarmModal();
+                }
+            });
             
             loadAlarms();
             updateTime();
