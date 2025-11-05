@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学校闹铃系统 - 专业版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        :root {
+            --primary: #4b6cb7;
+            --secondary: #182848;
+            --accent: #2ed573;
+            --text: #333;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --success: #2ed573;
+            --danger: #ff4757;
+            --warning: #ff9f43;
+            --info: #1e90ff;
+        }
+        
+        .dark-theme {
+            --primary: #6b8cdf;
+            --secondary: #283c5f;
+            --accent: #3ce68c;
+            --text: #f0f0f0;
+            --bg: #1a1a2e;
+            --card-bg: #16213e;
+            --border: #2d4059;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+        
+        .school-theme {
+            --primary: #3a7ca5;
+            --secondary: #164e63;
+            --accent: #f9a826;
+            --text: #2d3748;
+            --bg: #f0f9ff;
+            --card-bg: #ffffff;
+            --border: #bee3f8;
+            --shadow: rgba(49, 130, 206, 0.1);
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text);
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-content {
+            flex: 1;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .theme-selector {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .theme-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            color: white;
+            transition: transform 0.2s;
+        }
+        
+        .theme-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .nav-tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text);
+            opacity: 0.7;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .nav-tab.active {
+            opacity: 1;
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            gap: 20px;
+            min-height: 500px;
+        }
+        
+        .tab-content {
+            display: none;
+            width: 100%;
+        }
+        
+        .tab-content.active {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .section {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .current-time-section {
+            text-align: center;
+        }
+        
+        .time-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .date-display {
+            font-size: 22px;
+            color: var(--text);
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+        
+        #schoolPeriod {
+            font-size: 18px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            font-size: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 16px;
+            background: var(--card-bg);
+            color: var(--text);
+        }
+        
+        .ringtone-preview {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow);
+        }
+        
+        .delete-btn {
+            background: var(--danger);
+        }
+        
+        .delete-btn:hover {
+            background: #e84147;
+        }
+        
+        .play-btn {
+            background: var(--accent);
+        }
+        
+        .play-btn:hover {
+            background: #25c065;
+        }
+        
+        .export-btn {
+            background: var(--warning);
+        }
+        
+        .export-btn:hover {
+            background: #e58e35;
+        }
+        
+        .import-btn {
+            background: var(--info);
+        }
+        
+        .import-btn:hover {
+            background: #1a7fd8;
+        }
+        
+        .alarms-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .alarm-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 2px 5px var(--shadow);
+            transition: transform 0.2s;
+        }
+        
+        .alarm-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px var(--shadow);
+        }
+        
+        .alarm-time {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .alarm-label {
+            font-size: 14px;
+            color: var(--text);
+            opacity: 0.8;
+        }
+        
+        .alarm-type {
+            font-size: 12px;
+            padding: 4px 10px;
+            background: var(--border);
+            border-radius: 12px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        
+        .type-class { background: var(--warning); color: white; }
+        .type-break { background: var(--success); color: white; }
+        .type-activity { background: var(--info); color: white; }
+        .type-exam { background: var(--danger); color: white; }
+        
+        .alarm-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .active-alarm {
+            background: rgba(255, 234, 167, 0.3);
+            border-left: 4px solid #fdcb6e;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 15px;
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 14px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .custom-ringtone {
+            margin-top: 10px;
+            padding: 15px;
+            border: 1px dashed var(--primary);
+            border-radius: 10px;
+        }
+        
+        .upload-status {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .success { color: var(--success); }
+        .error { color: var(--danger); }
+        
+        /* 铃声列表样式 */
+        .ringtones-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .ringtone-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        
+        .ringtone-name {
+            font-weight: 500;
+        }
+        
+        .ringtone-type {
+            font-size: 12px;
+            padding: 4px 8px;
+            background: var(--border);
+            border-radius: 8px;
+            margin-left: 10px;
+        }
+        
+        .ringtone-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        /* 导入导出按钮 */
+        .import-export {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .section {
+                min-width: 100%;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .theme-selector {
+                justify-content: center;
+            }
+            
+            .import-export {
+                flex-direction: column;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1><i class="fas fa-bell"></i> 学校闹铃系统</h1>
+                <p class="subtitle">专业铃声管理 | 轻松管理学校作息时间</p>
+            </div>
+            <div class="theme-selector">
+                <button class="theme-btn" onclick="setTheme('default')" title="默认主题">
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button class="theme-btn" onclick="setTheme('dark')" title="暗黑主题">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="theme-btn" onclick="setTheme('school')" title="学校主题">
+                    <i class="fas fa-school"></i>
+                </button>
+            </div>
+        </header>
+        
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="switchTab('alarm-tab')">
+                <i class="fas fa-clock"></i> 闹铃管理
+            </div>
+            <div class="nav-tab" onclick="switchTab('ringtone-tab')">
+                <i class="fas fa-music"></i> 铃声管理
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- 闹铃管理标签页 -->
+            <div id="alarm-tab" class="tab-content active">
+                <div class="section current-time-section fade-in">
+                    <h2 class="section-title"><i class="fas fa-clock"></i> 当前时间</h2>
+                    <div class="time-display" id="currentTime">00:00:00</div>
+                    <div class="date-display" id="currentDate">2023年10月15日 星期日</div>
+                    <div id="schoolPeriod"></div>
+                    
+                    <div class="import-export">
+                        <button class="import-btn" onclick="importData()">
+                            <i class="fas fa-file-import"></i> 导入数据
+                        </button>
+                        <button class="export-btn" onclick="exportData()">
+                            <i class="fas fa-file-export"></i> 导出数据
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="section add-alarm-section fade-in">
+                    <h2 class="section-title"><i class="fas fa-plus-circle"></i> 添加新闹铃</h2>
+                    <form id="alarmForm">
+                        <div class="form-group">
+                            <label for="alarmTime"><i class="fas fa-clock"></i> 闹铃时间</label>
+                            <input type="time" id="alarmTime" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="alarmLabel"><i class="fas fa-tag"></i> 闹铃名称</label>
+                            <input type="text" id="alarmLabel" placeholder="例如：第一节上课铃" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="alarmType"><i class="fas fa-list"></i> 闹铃类型</label>
+                            <select id="alarmType">
+                                <option value="class">上课铃</option>
+                                <option value="break">下课铃</option>
+                                <option value="activity">活动铃</option>
+                                <option value="exam">考试铃</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit">
+                            <i class="fas fa-plus"></i> 添加闹铃
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="section alarms-list fade-in">
+                    <h2 class="section-title"><i class="fas fa-list"></i> 闹铃列表</h2>
+                    <div id="alarmsContainer">
+                        <!-- 闹铃将在这里动态添加 -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 铃声管理标签页 -->
+            <div id="ringtone-tab" class="tab-content">
+                <div class="section fade-in" style="flex: 2;">
+                    <h2 class="section-title"><i class="fas fa-upload"></i> 上传新铃声</h2>
+                    <div class="form-group">
+                        <label for="newRingtone"><i class="fas fa-music"></i> 选择铃声文件 (MP3)</label>
+                        <input type="file" id="newRingtone" accept="audio/mp3">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ringtoneName"><i class="fas fa-tag"></i> 铃声名称</label>
+                        <input type="text" id="ringtoneName" placeholder="例如：上课铃声">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="assignedType"><i class="fas fa-link"></i> 关联闹铃类型</label>
+                        <select id="assignedType">
+                            <option value="">不关联特定类型</option>
+                            <option value="class">上课铃</option>
+                            <option value="break">下课铃</option>
+                            <option value="activity">活动铃</option>
+                            <option value="exam">考试铃</option>
+                        </select>
+                    </div>
+                    
+                    <button class="play-btn" onclick="uploadNewRingtone()">
+                        <i class="fas fa-upload"></i> 上传铃声
+                    </button>
+                    
+                    <div class="upload-status" id="ringtoneUploadStatus"></div>
+                </div>
+                
+                <div class="section fade-in" style="flex: 3;">
+                    <h2 class="section-title"><i class="fas fa-music"></i> 铃声列表</h2>
+                    <div class="ringtones-container" id="ringtonesContainer">
+                        <!-- 铃声将在这里动态添加 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p><i class="fas fa-copyright"></i> 2023 学校闹铃系统 | 技术支持: 信息技术部</p>
+        </footer>
+    </div>
+
+    <script>
+        // 存储自定义铃声
+        let customRingtones = {};
+        let ringtoneAssignments = {}; // 存储铃声类型关联
+        
+        // 设置主题
+        function setTheme(theme) {
+            document.body.classList.remove('dark-theme', 'school-theme');
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+            } else if (theme === 'school') {
+                document.body.classList.add('school-theme');
+            }
+            localStorage.setItem('theme', theme);
+        }
+        
+        // 切换标签页
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.nav-tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+        }
+        
+        // 更新当前时间
+        function updateTime() {
+            const now = new Date();
+            
+            // 更新时钟
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
+            
+            // 更新日期
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const weekday = weekdays[now.getDay()];
+            document.getElementById('currentDate').textContent = `${year}年${month}月${day}日 ${weekday}`;
+            
+            // 更新教学时段
+            updateSchoolPeriod(now);
+            
+            // 检查闹铃
+            checkAlarms(now);
+        }
+        
+        // 更新教学时段显示
+        function updateSchoolPeriod(now) {
+            const hour = now.getHours();
+            let period = '';
+            
+            if (hour >= 5 && hour < 8) {
+                period = '早晨';
+            } else if (hour >= 8 && hour < 12) {
+                period = '上午上课时间';
+            } else if (hour >= 12 && hour < 14) {
+                period = '午休时间';
+            } else if (hour >= 14 && hour < 17) {
+                period = '下午上课时间';
+            } else if (hour >= 17 && hour < 19) {
+                period = '课外活动时间';
+            } else {
+                period = '晚间时间';
+            }
+            
+            document.getElementById('schoolPeriod').textContent = `当前时段: ${period}`;
+        }
+        
+        // 初始化闹铃数据
+        let alarms = [];
+        
+        // 从本地存储加载数据
+        function loadAlarms() {
+            const savedAlarms = localStorage.getItem('schoolAlarms');
+            if (savedAlarms) {
+                alarms = JSON.parse(savedAlarms);
+                renderAlarms();
+            }
+            
+            // 加载自定义铃声
+            const savedCustomRingtones = localStorage.getItem('customRingtones');
+            if (savedCustomRingtones) {
+                customRingtones = JSON.parse(savedCustomRingtones);
+            }
+            
+            // 加载铃声关联
+            const savedRingtoneAssignments = localStorage.getItem('ringtoneAssignments');
+            if (savedRingtoneAssignments) {
+                ringtoneAssignments = JSON.parse(savedRingtoneAssignments);
+            }
+            
+            // 加载主题
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                setTheme(savedTheme);
+            }
+            
+            // 渲染铃声列表
+            renderRingtones();
+        }
+        
+        // 保存数据到本地存储
+        function saveAlarms() {
+            localStorage.setItem('schoolAlarms', JSON.stringify(alarms));
+            localStorage.setItem('customRingtones', JSON.stringify(customRingtones));
+            localStorage.setItem('ringtoneAssignments', JSON.stringify(ringtoneAssignments));
+        }
+        
+        // 渲染闹铃列表
+        function renderAlarms() {
+            const container = document.getElementById('alarmsContainer');
+            container.innerHTML = '';
+            
+            if (alarms.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text); opacity: 0.7;"><i class="fas fa-bell-slash"></i> 暂无闹铃设置</p>';
+                return;
+            }
+            
+            alarms.forEach((alarm, index) => {
+                const alarmItem = document.createElement('div');
+                alarmItem.className = 'alarm-item fade-in';
+                
+                // 如果闹铃时间已过但还未处理，添加激活样式
+                const now = new Date();
+                const alarmTime = new Date();
+                const [hours, minutes] = alarm.time.split(':');
+                alarmTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+                
+                if (now >= alarmTime && now < new Date(alarmTime.getTime() + 60000)) {
+                    alarmItem.classList.add('active-alarm');
+                }
+                
+                // 获取类型中文文本
+                let typeText = '';
+                let typeClass = '';
+                switch(alarm.type) {
+                    case 'class':
+                        typeText = '上课铃';
+                        typeClass = 'type-class';
+                        break;
+                    case 'break':
+                        typeText = '下课铃';
+                        typeClass = 'type-break';
+                        break;
+                    case 'activity':
+                        typeText = '活动铃';
+                        typeClass = 'type-activity';
+                        break;
+                    case 'exam':
+                        typeText = '考试铃';
+                        typeClass = 'type-exam';
+                        break;
+                }
+                
+                alarmItem.innerHTML = `
+                    <div>
+                        <div class="alarm-time">${alarm.time}</div>
+                        <div class="alarm-label">${alarm.label}</div>
+                        <span class="alarm-type ${typeClass}">${typeText}</span>
+                    </div>
+                    <div class="alarm-actions">
+                        <button class="play-btn" onclick="playAlarmRingtone('${alarm.type}')">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="delete-btn" onclick="deleteAlarm(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(alarmItem);
+            });
+        }
+        
+        // 渲染铃声列表
+        function renderRingtones() {
+            const container = document.getElementById('ringtonesContainer');
+            container.innerHTML = '';
+            
+            if (Object.keys(customRingtones).length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text); opacity: 0.7;"><i class="fas fa-music"></i> 暂无自定义铃声</p>';
+                return;
+            }
+            
+            // 渲染铃声列表
+            Object.values(customRingtones).forEach(ringtone => {
+                const ringtoneItem = document.createElement('div');
+                ringtoneItem.className = 'ringtone-item';
+                
+                // 获取关联的类型文本
+                let typeText = '';
+                for (const [type, id] of Object.entries(ringtoneAssignments)) {
+                    if (id == ringtone.id) {
+                        switch(type) {
+                            case 'class': typeText = '上课铃'; break;
+                            case 'break': typeText = '下课铃'; break;
+                            case 'activity': typeText = '活动铃'; break;
+                            case 'exam': typeText = '考试铃'; break;
+                        }
+                    }
+                }
+                
+                ringtoneItem.innerHTML = `
+                    <div>
+                        <div class="ringtone-name">${ringtone.name}</div>
+                        ${typeText ? `<span class="ringtone-type">${typeText}</span>` : ''}
+                    </div>
+                    <div class="ringtone-actions">
+                        <button class="play-btn" onclick="playRingtone('custom', ${ringtone.id})">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="delete-btn" onclick="deleteRingtone(${ringtone.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(ringtoneItem);
+            });
+        }
+        
+        // 添加新闹铃
+        function addAlarm(event) {
+            event.preventDefault();
+            
+            const time = document.getElementById('alarmTime').value;
+            const label = document.getElementById('alarmLabel').value;
+            const type = document.getElementById('alarmType').value;
+            
+            if (!time || !label) return;
+            
+            const newAlarm = {
+                time,
+                label,
+                type
+            };
+            
+            alarms.push(newAlarm);
+            saveAlarms();
+            renderAlarms();
+            
+            document.getElementById('alarmForm').reset();
+            
+            // 显示添加成功提示
+            showNotification('闹铃添加成功！', 'success');
+        }
+        
+        // 显示通知
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.bottom = '20px';
+            notification.style.right = '20px';
+            notification.style.padding = '12px 20px';
+            notification.style.backgroundColor = type === 'success' ? 'var(--success)' : 'var(--danger)';
+            notification.style.color = 'white';
+            notification.style.borderRadius = '8px';
+            notification.style.boxShadow = '0 4px 12px var(--shadow)';
+            notification.style.zIndex = '1000';
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateY(20px)';
+            notification.style.transition = 'opacity 0.3s, transform 0.3s';
+            
+            document.body.appendChild(notification);
+            
+            // 触发动画
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateY(0)';
+            }, 10);
+            
+            // 3秒后消失
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+        
+        // 删除闹铃
+        function deleteAlarm(index) {
+            alarms.splice(index, 1);
+            saveAlarms();
+            renderAlarms();
+            
+            // 显示删除成功提示
+            showNotification('闹铃已删除', 'success');
+        }
+        
+        // 删除铃声
+        function deleteRingtone(id) {
+            if (confirm('确定要删除这个铃声吗？')) {
+                delete customRingtones[id];
+                
+                // 同时删除关联
+                for (const [type, ringtoneId] of Object.entries(ringtoneAssignments)) {
+                    if (ringtoneId == id) {
+                        delete ringtoneAssignments[type];
+                    }
+                }
+                
+                saveAlarms();
+                renderRingtones();
+                showNotification('铃声已删除', 'success');
+            }
+        }
+        
+        // 检查闹铃是否该响铃
+        function checkAlarms(now) {
+            const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            
+            alarms.forEach(alarm => {
+                if (alarm.time === currentTime && now.getSeconds() === 0) {
+                    triggerAlarm(alarm);
+                }
+            });
+        }
+        
+        // 播放铃声
+        function playRingtone(ringtoneType, customRingtoneId = null) {
+            // 停止任何正在播放的音频
+            stopAllAudio();
+            
+            // 创建音频上下文
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // 如果是自定义铃声
+            if (ringtoneType === 'custom' && customRingtoneId !== null) {
+                const customRingtone = customRingtones[customRingtoneId];
+                if (customRingtone && customRingtone.audioData) {
+                    // 解码并播放Base64音频数据
+                    const audioData = Uint8Array.from(atob(customRingtone.audioData), c => c.charCodeAt(0)).buffer;
+                    audioContext.decodeAudioData(audioData, function(buffer) {
+                        const source = audioContext.createBufferSource();
+                        source.buffer = buffer;
+                        source.connect(audioContext.destination);
+                        source.start();
+                        
+                        // 保存引用以便后续停止
+                        window.currentAudioSource = source;
+                    });
+                    return;
+                } else {
+                    showNotification('自定义铃声不存在或已丢失', 'error');
+                    return;
+                }
+            }
+        }
+        
+        // 播放闹铃关联的铃声
+        function playAlarmRingtone(alarmType) {
+            // 停止任何正在播放的音频
+            stopAllAudio();
+            
+            // 检查是否有关联的铃声
+            if (ringtoneAssignments[alarmType]) {
+                const ringtoneId = ringtoneAssignments[alarmType];
+                playRingtone('custom', ringtoneId);
+            } else {
+                // 如果没有关联的铃声，使用默认铃声
+                playDefaultRingtone(alarmType);
+            }
+        }
+        
+        // 播放默认铃声
+        function playDefaultRingtone(alarmType) {
+            // 创建音频上下文
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            let source = audioContext.createOscillator();
+            
+            // 根据类型选择不同的铃声
+            switch(alarmType) {
+                case 'class':
+                    // 上课铃声
+                    source.type = 'sine';
+                    source.frequency.setValueAtTime(800, audioContext.currentTime);
+                    source.frequency.setValueAtTime(600, audioContext.currentTime + 0.3);
+                    source.frequency.setValueAtTime(800, audioContext.currentTime + 0.6);
+                    break;
+                    
+                case 'break':
+                    // 下课铃声
+                    source.type = 'sine';
+                    source.frequency.setValueAtTime(600, audioContext.currentTime);
+                    source.frequency.setValueAtTime(800, audioContext.currentTime + 0.3);
+                    source.frequency.setValueAtTime(600, audioContext.currentTime + 0.6);
+                    break;
+                    
+                case 'activity':
+                    // 活动铃声
+                    source.type = 'sine';
+                    source.frequency.setValueAtTime(1000, audioContext.currentTime);
+                    source.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 1.5);
+                    break;
+                    
+                case 'exam':
+                    // 考试铃声
+                    source.type = 'square';
+                    source.frequency.setValueAtTime(600, audioContext.currentTime);
+                    break;
+                    
+                default:
+                    // 默认铃声
+                    source.type = 'sine';
+                    source.frequency.setValueAtTime(800, audioContext.currentTime);
+                    break;
+            }
+            
+            if (source) {
+                // 创建增益节点（控制音量）
+                const gainNode = audioContext.createGain();
+                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                
+                // 连接节点
+                source.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // 播放声音
+                source.start();
+                
+                // 保存引用以便后续停止
+                window.currentAudioSource = source;
+                
+                // 2秒后停止声音
+                setTimeout(() => {
+                    if (source) {
+                        source.stop();
+                    }
+                }, 2000);
+            }
+        }
+        
+        // 停止所有音频
+        function stopAllAudio() {
+            if (window.currentAudioSource) {
+                window.currentAudioSource.stop();
+                window.currentAudioSource = null;
+            }
+        }
+        
+        // 触发闹铃响铃
+        function triggerAlarm(alarm) {
+            playAlarmRingtone(alarm.type);
+            
+            // 显示通知
+            showNotification(`⏰ ${alarm.label}时间到了！`, 'success');
+        }
+        
+        // 上传新铃声
+        function uploadNewRingtone() {
+            const fileInput = document.getElementById('newRingtone');
+            const nameInput = document.getElementById('ringtoneName');
+            const typeSelect = document.getElementById('assignedType');
+            const statusElement = document.getElementById('ringtoneUploadStatus');
+            
+            const file = fileInput.files[0];
+            const name = nameInput.value;
+            const assignedType = typeSelect.value;
+            
+            if (!file) {
+                statusElement.textContent = '请选择要上传的音频文件';
+                statusElement.className = 'upload-status error';
+                return;
+            }
+            
+            if (!name) {
+                statusElement.textContent = '请输入铃声名称';
+                statusElement.className = 'upload-status error';
+                return;
+            }
+            
+            // 检查文件类型
+            if (!file.type.startsWith('audio/')) {
+                statusElement.textContent = '请上传音频文件';
+                statusElement.className = 'upload-status error';
+                return;
+            }
+            
+            // 检查文件大小（限制为2MB）
+            if (file.size > 2 * 1024 * 1024) {
+                statusElement.textContent = '文件大小不能超过2MB';
+                statusElement.className = 'upload-status error';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // 将音频文件转换为Base64字符串
+                const arrayBuffer = e.target.result;
+                const base64String = btoa(
+                    new Uint8Array(arrayBuffer)
+                      .reduce((data, byte) => data + String.fromCharCode(byte), '')
+                );
+                
+                // 创建自定义铃声对象
+                const ringtoneId = Date.now(); // 使用时间戳作为唯一ID
+                const newRingtone = {
+                    id: ringtoneId,
+                    name: name,
+                    audioData: base64String
+                };
+                
+                // 保存到自定义铃声列表
+                customRingtones[ringtoneId] = newRingtone;
+                
+                // 如果选择了关联类型，保存关联
+                if (assignedType) {
+                    ringtoneAssignments[assignedType] = ringtoneId;
+                }
+                
+                saveAlarms();
+                renderRingtones();
+                
+                // 清空表单
+                fileInput.value = '';
+                nameInput.value = '';
+                typeSelect.value = '';
+                
+                statusElement.textContent = '铃声上传成功！';
+                statusElement.className = 'upload-status success';
+                
+                // 显示成功提示
+                showNotification('新铃声上传成功！', 'success');
+                
+                // 3秒后清除状态
+                setTimeout(() => {
+                    statusElement.textContent = '';
+                }, 3000);
+            };
+            
+            reader.onerror = function() {
+                statusElement.textContent = '文件读取失败';
+                statusElement.className = 'upload-status error';
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+        
+        // 导出数据
+        function exportData() {
+            const data = {
+                alarms: alarms,
+                customRingtones: customRingtones,
+                ringtoneAssignments: ringtoneAssignments
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'school-alarms.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('数据导出成功！', 'success');
+        }
+        
+        // 导入数据
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = e => { 
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        
+                        if (data.alarms) {
+                            alarms = data.alarms;
+                        }
+                        
+                        if (data.customRingtones) {
+                            customRingtones = data.customRingtones;
+                        }
+                        
+                        if (data.ringtoneAssignments) {
+                            ringtoneAssignments = data.ringtoneAssignments;
+                        }
+                        
+                        saveAlarms();
+                        renderAlarms();
+                        renderRingtones();
+                        
+                        showNotification('数据导入成功！', 'success');
+                    } catch (error) {
+                        showNotification('导入失败：文件格式不正确', 'error');
+                        console.error(error);
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('alarmForm').addEventListener('submit', addAlarm);
+            
+            loadAlarms();
+            updateTime();
+            setInterval(updateTime, 1000);
+        });
+    </script>
+</body>
+</html>
